@@ -2,7 +2,6 @@
 Tool to 
 
 - (1) convert png to dark mode without losing color hue;
-- 
 - (2) convert pdf to png and remove the extra empty space
 
 ## Usage
@@ -17,7 +16,9 @@ png2dark png1 png2 ...
 
 ## Install
 
-Download the script and change the permission
+Requires ImageMagick command-line tool (https://imagemagick.org/script/command-line-tools.php) and ghostscript command-line tool (https://ghostscript.com/docs/9.54.0/Use.htm)
+
+Download the script and change the permission.
 
 ```
 chmod +x pdf2png
