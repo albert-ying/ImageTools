@@ -1,0 +1,63 @@
+#!/bin/sh
+
+force=0
+trim=1
+
+while getopts ":ft" opt; do
+  case $opt in
+    f)
+      force=1
+      ;;
+    t)
+      trim=0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+echo "$@"
+
+for pdf in "$@"
+do
+    dpi=600
+    echo "Converting $pdf with DPI = ${dpi}"
+    png_path="${pdf%%.pdf}.png"
+    
+    if [ -f "$png_path" ] && [ $force -eq 0 ]; then
+        echo "File $png_path already exists. Use -f to overwrite."
+    else
+        if [ $force -eq 1 ] && [ -f "$png_path" ]; then
+            echo "Overwriting $png_path due to -f flag."
+        fi
+        
+        gs \
+        -o "$png_path" \
+        -q \
+        -sDEVICE=png16m \
+        -r1200 \
+        "$pdf" \
+        -dGraphicsAlphaBits=20 \
+        -dTextAlphaBits=20
+        
+        if [ $? -eq 0 ]; then
+            echo "Conversion successful: $png_path"
+            
+            if [ $trim -eq 1 ]; then
+                # Remove whitespace from the converted PNG image
+                convert "$png_path" -trim "$png_path"
+                
+                if [ $? -eq 0 ]; then
+                    echo "Whitespace removal successful: $png_path"
+                else
+                    echo "Whitespace removal failed for $png_path"
+                fi
+            fi
+        else
+            echo "Conversion failed for $pdf"
+        fi
+    fi
+done
