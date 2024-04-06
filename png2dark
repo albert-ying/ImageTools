@@ -1,0 +1,34 @@
+#!/bin/sh
+
+force=0
+
+while getopts ":f" opt; do
+  case $opt in
+    f)
+      force=1
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+echo "$@"
+
+for pdf in "$@"
+do
+    # Correctly define the output file name by replacing .pdf extension with _dark.png
+    png_path="${pdf%.png}_dark.png"
+
+    if [ -f "$png_path" ] && [ "$force" -eq 0 ]; then
+        echo "File $png_path already exists. Use -f to overwrite."
+    else
+        if [ "$force" -eq 1 ] && [ -f "$png_path" ]; then
+            echo "Overwriting $png_path due to -f flag."
+        fi
+        # Ensure the use of ImageMagick's convert command is correctly applied
+        convert -colorspace HSL -channel L -level 100%,20% +level-colors 'rgb(102,75,25)','lemonchiffon' "$pdf" "$png_path"
+    fi
+done
